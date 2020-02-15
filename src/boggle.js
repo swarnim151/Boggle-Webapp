@@ -15,11 +15,15 @@ class Boggle extends Component {
         ["I", "L", "A", "E", "E"],
         ["G", "L", "Z", "R", "E"],
         ["S", "R", "F", "O", "S"]
-      ]
+      ],
+      high_score_1: 0,
+      high_score_2: 0,
+      high_score_3: 0
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.SetTheGrid = this.SetTheGrid.bind(this);
+    this.SetHighScore = this.SetHighScore.bind(this);
   }
 
   SetTheGrid(grid) {
@@ -52,6 +56,44 @@ class Boggle extends Component {
         }
       });
     console.log("hey");
+  }
+
+  SetHighScore(highest_score) {
+    this.setState({ high_score_1: highest_score[0] });
+    this.setState({ high_score_2: highest_score[1] });
+    this.setState({ high_score_3: highest_score[2] });
+  }
+
+  GetHighScore(SetHighScore) {
+    var girdssssss = db.collection("grid");
+    girdssssss
+      .doc("U6LNGmPhqKHaZMm9I9F1")
+      .get()
+      .then(function(snap) {
+        console.log(snap);
+        if (snap.exists) {
+          console.log("lala", snap.data().highest_score);
+          SetHighScore(snap.data().highest_score);
+        }
+      });
+    console.log("hey");
+  }
+
+  SetValidWords() {
+    this.setState({ all_valid_words: boggle(this.state.grid, word_list) });
+    // console.log(this.state.all_valid_words);
+  }
+
+  handleSubmit(event) {
+    this.setState({ load_challenge: true });
+    event.preventDefault();
+  }
+
+  handleChange(nums, event) {
+    this.GettheGrid(this.SetTheGrid);
+    this.SetValidWords();
+    this.setState({ show_grid: true });
+    event.preventDefault();
   }
 
   PrintGrid() {
@@ -93,32 +135,10 @@ class Boggle extends Component {
             <button>{this.state.grid[4][3]}</button>
             <button>{this.state.grid[4][4]}</button>
           </div>
-
           <div></div>
         </div>
       </div>
     );
-  }
-
-  SetValidWords() {
-    var found_words = [];
-    found_words = boggle(this.state.grid, word_list);
-    console.log("Using FindAllValidWords");
-    console.log(found_words);
-    console.log("Using FindAllValidWords");
-    this.setState({ all_valid_words: found_words });
-  }
-
-  handleSubmit(event) {
-    this.setState({ load_challenge: true });
-    event.preventDefault();
-  }
-
-  handleChange(event) {
-    this.GettheGrid(this.SetTheGrid);
-    this.SetValidWords();
-    this.setState({ show_grid: true });
-    event.preventDefault();
   }
 
   render() {
@@ -133,16 +153,34 @@ class Boggle extends Component {
       } else {
         return (
           <div>
-            <h1> Challenge 1</h1>
-            <button onClick={this.handleChange}>Load Challenge</button>
-            <h1> Challenge 2</h1>
-            <button onClick={this.handleChange}>Load Challenge</button>
-            <h1> Challenge 3</h1>
-            <button onClick={this.handleChange}>Load Challenge</button>
+            <div>
+              <h1> Challenge 1</h1>
+              <p> High Score: {this.state.high_score_1}</p>
+              {this.state.high_score}
+            </div>
+            <button onClick={e => this.handleChange(1, e)}>
+              Load Challenge
+            </button>
+            <div>
+              <h1> Challenge 2</h1>
+              <p> High Score {this.state.high_score_2}</p>
+            </div>
+            <button onClick={e => this.handleChange(2, e)}>
+              Load Challenge
+            </button>{" "}
+            <div>
+              <h1> Challenge 3</h1>
+              <p> High Score {this.state.high_score_3}</p>
+            </div>
+            <button onClick={e => this.handleChange(3, e)}>
+              Load Challenge
+            </button>{" "}
           </div>
         );
       }
     } else {
+      var maka = this.GetHighScore(this.SetHighScore);
+      console.log(maka);
       return (
         <div>
           <button onClick={this.handleSubmit}>Load Challenge</button>

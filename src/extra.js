@@ -19,8 +19,6 @@ function check_for_letter_traversal(
 ) {
   for (var i = x - 1; i < x + 2; i++) {
     for (var j = y - 1; j < y + 2; j++) {
-      //console.log('looking for',word[matched_letter],'at',i,j,'from',x,y );
-
       if (
         i >= 0 &&
         j >= 0 &&
@@ -33,7 +31,6 @@ function check_for_letter_traversal(
             answer.push(word);
             return true;
           } else {
-            //console.log();
             //  console.log(word[matched_letter],'found at',i,j,'from',x,y );
             matched_letter += 1;
             visited_nodes[i][j] = true;
@@ -71,7 +68,6 @@ function boggle(grid, dictionary) {
   var answer = [];
   var n = grid.length;
   var first_letter_map = new Map();
-
   console.log(grid, first_letter_map);
 
   for (var i = 0; i < grid.length; i++) {
@@ -95,17 +91,17 @@ function boggle(grid, dictionary) {
     var skip_by = 10;
 
     if (!first_letter_map.has(word[0])) {
-      console.log(a, "the sahi word", dictionary[a].toUpperCase());
+      console.log(a, "no first letter", dictionary[a].toUpperCase());
       while (skip_by >= 1) {
         if (
           a + skip_by < dictionary.length &&
           word[0] === dictionary[a + skip_by][0].toUpperCase()
         ) {
-          console.log(a, "the sahi main word", dictionary[a].toUpperCase());
+          console.log(a, "adding skip_by", dictionary[a].toUpperCase());
           console.log();
           a = a + skip_by;
         } else {
-          console.log(a, "the sahi 1 word", dictionary[a].toUpperCase());
+          console.log(a, "reducing skip_by", dictionary[a].toUpperCase());
           skip_by = skip_by / 10;
         }
       }
