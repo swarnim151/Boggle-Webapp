@@ -1,9 +1,6 @@
 import React, { Component } from "react";
-
 import { db } from "./firebase";
-
 import { word_list } from "./word_list";
-
 import boggle from "./extra";
 
 class Boggle extends Component {
@@ -136,11 +133,11 @@ class Boggle extends Component {
       } else {
         return (
           <div>
-            <h1> Load Challenge 1</h1>
+            <h1> Challenge 1</h1>
             <button onClick={this.handleChange}>Load Challenge</button>
-            <h1> Load Challenge 2</h1>
+            <h1> Challenge 2</h1>
             <button onClick={this.handleChange}>Load Challenge</button>
-            <h1> Load Challenge 3</h1>
+            <h1> Challenge 3</h1>
             <button onClick={this.handleChange}>Load Challenge</button>
           </div>
         );

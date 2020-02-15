@@ -1,6 +1,3 @@
-import React, { Component } from "react";
-import { word_list } from "./word_list";
-
 function visited_node(n, visited_nodes) {
   for (var i = 0; i < n; i++) {
     var row = [];
@@ -29,10 +26,10 @@ function check_for_letter_traversal(
         j >= 0 &&
         i < grid.length &&
         j < grid.length &&
-        visited_nodes[i][j] == false
+        visited_nodes[i][j] === false
       ) {
-        if (word[matched_letter] == grid[i][j]) {
-          if (word.length - matched_letter == 1) {
+        if (word[matched_letter] === grid[i][j]) {
+          if (word.length - matched_letter === 1) {
             answer.push(word);
             return true;
           } else {
@@ -102,7 +99,7 @@ function boggle(grid, dictionary) {
       while (skip_by >= 1) {
         if (
           a + skip_by < dictionary.length &&
-          word[0] == dictionary[a + skip_by][0].toUpperCase()
+          word[0] === dictionary[a + skip_by][0].toUpperCase()
         ) {
           console.log(a, "the sahi main word", dictionary[a].toUpperCase());
           console.log();
