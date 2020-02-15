@@ -4,7 +4,7 @@ import { db } from "./firebase";
 
 import { word_list } from "./word_list";
 
-import FindAllValidWords from "./extra";
+import boggle from "./extra";
 
 class Boggle extends Component {
   constructor(props) {
@@ -105,7 +105,10 @@ class Boggle extends Component {
 
   SetValidWords() {
     var found_words = [];
-    found_words = new FindAllValidWords();
+    found_words = boggle(this.state.grid, word_list);
+    console.log("Using FindAllValidWords");
+    console.log(found_words);
+    console.log("Using FindAllValidWords");
     this.setState({ all_valid_words: found_words });
   }
 
@@ -127,7 +130,7 @@ class Boggle extends Component {
         return (
           <div>
             <div>{this.PrintGrid()}</div>
-            <BoggleGame></BoggleGame>
+            <BoggleGame sent_list={this.state.all_valid_words} />
           </div>
         );
       } else {
@@ -161,7 +164,7 @@ class BoggleGame extends Component {
       input_word: "",
       valid_words: [],
       score: 0,
-      all_valid_words: ["ACE", "ZEROS"],
+      all_valid_words: this.props.sent_list,
       game_state: true
     };
     this.handleChange = this.handleChange.bind(this);
