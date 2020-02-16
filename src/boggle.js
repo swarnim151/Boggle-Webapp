@@ -111,7 +111,11 @@ class Boggle extends Component {
             );
           }
         } else {
-          return <div></div>;
+          return (
+            <div>
+              <p> Wait while the game loads ...... </p>
+            </div>
+          );
         }
       } else {
         return (
@@ -244,7 +248,7 @@ class BoggleGame extends Component {
         <div>
           <div>{this.PrintGrid()}</div>
           <div>
-            <h1></h1>
+            <h1> </h1>
             <form onSubmit={this.handleSubmit}>
               <label>
                 Enter a word:
@@ -257,7 +261,7 @@ class BoggleGame extends Component {
               <input className="btn btn-primary" type="submit" value="Submit" />
             </form>
           </div>
-          <h1></h1>
+          <h1> </h1>
           <div>
             <button onClick={this.handleStop}>End Challenge</button>
           </div>
