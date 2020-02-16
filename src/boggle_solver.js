@@ -1,276 +1,170 @@
-// import React, { Component } from "react";
-// import { db } from "./firebase";
-// import { word_list } from "./word_list";
-// import boggle from "./extra";
+function visited_node(n, visited_nodes) {
+  for (var i = 0; i < n; i++) {
+    var row = [];
+    for (var j = 0; j < n; j++) {
+      row.push(false);
+    }
+    visited_nodes.push(row);
+  }
+}
 
-// class Boggle extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       load_challenge: false,
-//       show_grid: false,
-//       grid: [
-//         ["A", "B", "N", "T", "D"],
-//         ["H", "N", "C", "P", "R"],
-//         ["I", "L", "A", "E", "E"],
-//         ["G", "L", "Z", "R", "E"],
-//         ["S", "R", "F", "O", "S"]
-//       ],
-//       high_score: 0
-//     };
-//     this.handleSubmit = this.handleSubmit.bind(this);
-//     this.handleChange = this.handleChange.bind(this);
-//     this.SetTheGrid = this.SetTheGrid.bind(this);
-//     this.SetHighScore = this.SetHighScore.bind(this);
-//   }
+function check_for_letter_traversal(
+  grid,
+  word,
+  matched_letter,
+  x,
+  y,
+  visited_nodes,
+  answer
+) {
+  for (var i = x - 1; i < x + 2; i++) {
+    for (var j = y - 1; j < y + 2; j++) {
+      //console.log(word, "looking for", word[matched_letter], "at", i, j);
+      if (word.length === matched_letter) {
+        answer.push(word);
+        return true;
+      }
+      if (
+        i >= 0 &&
+        j >= 0 &&
+        i < grid.length &&
+        j < grid.length &&
+        visited_nodes[i][j] === false
+      ) {
+        if (word[matched_letter] === grid[i][j]) {
+          visited_nodes[i][j] = true;
+          if (
+            check_for_letter_traversal(
+              grid,
+              word,
+              matched_letter + 1,
+              i,
+              j,
+              visited_nodes,
+              answer
+            )
+          ) {
+            return true;
+          }
+          if (
+            word[matched_letter] === "Q" &&
+            word.length >= matched_letter + 2 &&
+            word[matched_letter + 1] === "U" &&
+            check_for_letter_traversal(
+              grid,
+              word,
+              matched_letter + 2,
+              i,
+              j,
+              visited_nodes,
+              answer
+            )
+          ) {
+            return true;
+          }
+          visited_nodes[i][j] = false;
+        }
+      }
+    }
+  }
+}
 
-//   SetTheGrid(grid) {
-//     var given_grid = [];
-//     for (var i = 0; i < 5; i++) {
-//       var row = [];
-//       for (var j = 0; j < 5; j++) {
-//         var position = 5 * i + j;
-//         row.push(grid[position]);
-//       }
-//       given_grid.push(row);
-//     }
-//     console.log(given_grid);
-//     this.setState({ grid: given_grid });
-//     console.log(given_grid[0][0]);
-//     console.log(word_list[0]);
-//     console.log(word_list[10000]);
-//   }
+function grid_contains_all_unique_letters(word, first_letter_map) {
+  for (var i = 0; i < word.length; i++) {
+    if (word[i] === "U" && first_letter_map.has("Q")) {
+      continue;
+    }
+    if (!first_letter_map.has(word[i])) {
+      return false;
+    }
+  }
+  return true;
+}
 
-//   GettheGrid(SetTheGrid) {
-//     var girdssssss = db.collection("grid");
-//     girdssssss
-//       .doc("CWzx6Xzk7a6RC91voh5S")
-//       .get()
-//       .then(function(snap) {
-//         console.log(snap);
-//         if (snap.exists) {
-//           console.log(snap.data().grid);
-//           SetTheGrid(snap.data().grid);
-//         }
-//       });
-//     console.log("hey");
-//   }
+function boggle(grid, dictionary) {
+  var answer = [];
+  var n = grid.length;
+  var first_letter_map = new Map();
+  console.log(grid, first_letter_map);
 
-//   SetHighScore(highest_score) {
-//     this.setState({ high_score: highest_score });
-//   }
+  for (var i = 0; i < grid.length; i++) {
+    for (var j = 0; j < grid.length; j++) {
+      var letter = grid[i][j];
+      if (!first_letter_map.has(letter)) {
+        first_letter_map.set(letter, [[i, j]]);
+      } else {
+        first_letter_map.get(letter).push([i, j]);
+      }
+    }
+  }
 
-//   GetHighScore(SetHighScore) {
-//     var girdssssss = db.collection("grid");
-//     girdssssss
-//       .doc("U6LNGmPhqKHaZMm9I9F1")
-//       .get()
-//       .then(function(snap) {
-//         console.log(snap);
-//         if (snap.exists) {
-//           console.log("lala", snap.data().highest_score);
-//           SetHighScore(snap.data().highest_score);
-//         }
-//       });
-//     console.log("hey");
-//   }
+  console.log(first_letter_map, "maka");
+  var a = 0;
 
-//   SetValidWords() {
-//     this.setState({ all_valid_words: boggle(this.state.grid, word_list) });
-//     // console.log(this.state.all_valid_words);
-//   }
+  while (a < dictionary.length) {
+    var word = dictionary[a].toUpperCase();
+    var start_position = [];
+    console.log(word);
 
-//   handleSubmit(event) {
-//     this.setState({ load_challenge: true });
-//     event.preventDefault();
-//   }
+    var skip_by = 10;
 
-//   handleChange(event) {
-//     this.GettheGrid(this.SetTheGrid);
-//     this.SetValidWords();
-//     this.setState({ show_grid: true });
-//     event.preventDefault();
-//   }
+    if (!first_letter_map.has(word[0])) {
+      console.log(a, "no first letter", dictionary[a].toUpperCase());
+      while (skip_by >= 1) {
+        if (
+          a + skip_by < dictionary.length &&
+          word[0] === dictionary[a + skip_by][0].toUpperCase()
+        ) {
+          console.log(a, "adding skip_by", dictionary[a].toUpperCase());
+          console.log();
+          a = a + skip_by;
+        } else {
+          console.log(a, "reducing skip_by", dictionary[a].toUpperCase());
+          skip_by = skip_by / 10;
+        }
+      }
+      a++;
+      continue;
+    } else {
+      console.log(word);
 
-//   PrintGrid() {
-//     return (
-//       <div>
-//         <div>
-//           <div>
-//             <button>{this.state.grid[0][0]}</button>
-//             <button>{this.state.grid[0][1]}</button>
-//             <button>{this.state.grid[0][2]}</button>
-//             <button>{this.state.grid[0][3]}</button>
-//             <button>{this.state.grid[0][4]}</button>
-//           </div>
-//           <div>
-//             <button>{this.state.grid[1][0]}</button>
-//             <button>{this.state.grid[1][1]}</button>
-//             <button>{this.state.grid[1][2]}</button>
-//             <button>{this.state.grid[1][3]}</button>
-//             <button>{this.state.grid[1][4]}</button>
-//           </div>
-//           <div>
-//             <button>{this.state.grid[2][0]}</button>
-//             <button>{this.state.grid[2][1]}</button>
-//             <button>{this.state.grid[2][2]}</button>
-//             <button>{this.state.grid[2][3]}</button>
-//             <button>{this.state.grid[2][4]}</button>
-//           </div>
-//           <div>
-//             <button>{this.state.grid[3][0]}</button>
-//             <button>{this.state.grid[3][1]}</button>
-//             <button>{this.state.grid[3][2]}</button>
-//             <button>{this.state.grid[3][3]}</button>
-//             <button>{this.state.grid[3][4]}</button>
-//           </div>
-//           <div>
-//             <button>{this.state.grid[4][0]}</button>
-//             <button>{this.state.grid[4][1]}</button>
-//             <button>{this.state.grid[4][2]}</button>
-//             <button>{this.state.grid[4][3]}</button>
-//             <button>{this.state.grid[4][4]}</button>
-//           </div>
+      if (!grid_contains_all_unique_letters(word, first_letter_map)) {
+        a++;
+        console.log("not in map", word);
 
-//           <div></div>
-//         </div>
-//       </div>
-//     );
-//   }
+        continue;
+      }
 
-//   render() {
-//     if (this.state.load_challenge) {
-//       if (this.state.show_grid) {
-//         return (
-//           <div>
-//             <div>{this.PrintGrid()}</div>
-//             <BoggleGame sent_list={this.state.all_valid_words} />
-//           </div>
-//         );
-//       } else {
-//         return (
-//           <div>
-//             <div>
-//               <h1> Challenge 1</h1>
-//               <p> High Score: {this.state.high_score}</p>
-//               {this.state.high_score}
-//             </div>
-//             <button onClick={this.handleChange}>Load Challenge</button>
-//             <div>
-//               <h1> Challenge 2</h1>
-//               <p> High Score {this.state.high_score}</p>
-//             </div>
-//             <button onClick={this.handleChange}>Load Challenge</button>
-//             <div>
-//               <h1> Challenge 3</h1>
-//               <p> High Score {this.state.high_score}</p>
-//             </div>
-//             <button onClick={this.handleChange}>Load Challenge</button>
-//           </div>
-//         );
-//       }
-//     } else {
-//       var maka = this.GetHighScore(this.SetHighScore);
-//       console.log(maka);
-//       return (
-//         <div>
-//           <button onClick={this.handleSubmit}>Load Challenge</button>
-//         </div>
-//       );
-//     }
-//   }
-// }
+      console.log(word);
 
-// export default Boggle;
+      start_position = first_letter_map.get(word[0]);
+      console.log(a, "word", word);
 
-// class BoggleGame extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       input_word: "",
-//       valid_words: [],
-//       score: 0,
-//       all_valid_words: this.props.sent_list,
-//       game_state: true
-//     };
-//     this.handleChange = this.handleChange.bind(this);
-//     this.handleSubmit = this.handleSubmit.bind(this);
-//     this.handleStop = this.handleStop.bind(this);
-//   }
+      for (var j = 0; j < start_position.length; j++) {
+        if (answer.includes(word)) {
+          break;
+        }
+        var visited_nodes = [];
+        visited_node(n, visited_nodes);
 
-//   handleChange(event) {
-//     this.setState({ input_word: event.target.value });
-//   }
+        var element = start_position[j];
+        //visited_nodes[element[0]][element[1]] = true;
 
-//   handleStop(event) {
-//     event.preventDefault();
-//     this.setState({ game_state: false });
-//   }
+        check_for_letter_traversal(
+          grid,
+          word,
+          0,
+          element[0],
+          element[1],
+          visited_nodes,
+          answer
+        );
+      }
+    }
+    a++;
+  }
+  console.log(answer);
+  return answer;
+}
 
-//   handleSubmit(event) {
-//     event.preventDefault();
-
-//     if (this.state.valid_words.includes(this.state.input_word)) {
-//       alert("The word has already been found.");
-//     } else if (
-//       //remove the word from this.state.valid_words
-//       this.state.all_valid_words.includes(this.state.input_word.toUpperCase())
-//     ) {
-//       var new_valid_words = this.state.valid_words;
-//       new_valid_words.push(this.state.input_word);
-//       this.setState({ valid_words: new_valid_words });
-//       var new_all_valid_words = this.state.all_valid_words;
-//       for (var i = 0; i < new_all_valid_words.length; i++) {
-//         if (new_all_valid_words[i] === this.state.input_word.toUpperCase()) {
-//           new_all_valid_words.splice(i, 1);
-//         }
-//       }
-//       this.setState({ all_valid_words: new_all_valid_words });
-//       var new_score = this.state.score;
-//       new_score++;
-//       this.setState({ score: new_score });
-//     } else {
-//       alert("The word you have entered is invalid.");
-//     }
-//   }
-
-//   render() {
-//     if (this.state.game_state) {
-//       return (
-//         <div>
-//           <div>
-//             <div>
-//               <form onSubmit={this.handleSubmit}>
-//                 <label>
-//                   Enter a word:
-//                   <input
-//                     type="text"
-//                     value={this.state.input_word}
-//                     onChange={this.handleChange}
-//                   />
-//                 </label>
-//                 <input
-//                   className="btn btn-primary"
-//                   type="submit"
-//                   value="Submit"
-//                 />
-//               </form>
-//             </div>
-//             <div>
-//               <button onClick={this.handleStop}>Stop</button>
-//             </div>
-//           </div>
-//           <p> Score: </p>
-//           <div>{this.state.score}</div>
-//         </div>
-//       );
-//     } else {
-//       return (
-//         <div>
-//           <p> Score: </p>
-//           <div>{this.state.score}</div>
-//         </div>
-//       );
-//     }
-//   }
-// }
+export default boggle;

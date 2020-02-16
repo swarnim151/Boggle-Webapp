@@ -1,21 +1,17 @@
 import React, { Component } from "react";
 import { db } from "./firebase";
 import { word_list } from "./word_list";
-import boggle from "./extra";
+import boggle from "./boggle_solver";
 
 class Boggle extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      load_challenge: false,
+      play_boggle: false,
       show_grid: false,
-      grid: [
-        ["A", "B", "N", "T", "D"],
-        ["H", "N", "C", "P", "R"],
-        ["I", "L", "A", "E", "E"],
-        ["G", "L", "Z", "R", "E"],
-        ["S", "R", "F", "O", "S"]
-      ],
+      grid: [],
+      all_valid_words: [],
+      load_boggle: false,
       high_score_1: 0,
       high_score_2: 0,
       high_score_3: 0
@@ -40,10 +36,9 @@ class Boggle extends Component {
     this.setState({ grid: given_grid });
     console.log(given_grid[0][0]);
     console.log(word_list[0]);
-    console.log(word_list[10000]);
   }
 
-  GettheGrid(SetTheGrid) {
+  GettheGrid(SetTheGrid, num) {
     var girdssssss = db.collection("grid");
     girdssssss
       .doc("CWzx6Xzk7a6RC91voh5S")
@@ -52,10 +47,9 @@ class Boggle extends Component {
         console.log(snap);
         if (snap.exists) {
           console.log(snap.data().grid);
-          SetTheGrid(snap.data().grid);
+          SetTheGrid(snap.data().grid[num]);
         }
       });
-    console.log("hey");
   }
 
   SetHighScore(highest_score) {
@@ -72,118 +66,86 @@ class Boggle extends Component {
       .then(function(snap) {
         console.log(snap);
         if (snap.exists) {
-          console.log("lala", snap.data().highest_score);
+          console.log("highest score:", snap.data().highest_score);
           SetHighScore(snap.data().highest_score);
         }
       });
-    console.log("hey");
   }
 
   SetValidWords() {
     this.setState({ all_valid_words: boggle(this.state.grid, word_list) });
+    this.setState({ load_boggle: true });
+
     // console.log(this.state.all_valid_words);
   }
 
   handleSubmit(event) {
-    this.setState({ load_challenge: true });
+    this.setState({ play_boggle: true });
     event.preventDefault();
   }
 
   handleChange(nums, event) {
-    this.GettheGrid(this.SetTheGrid);
-    this.SetValidWords();
+    this.GettheGrid(this.SetTheGrid, nums);
     this.setState({ show_grid: true });
     event.preventDefault();
   }
 
-  PrintGrid() {
-    return (
-      <div>
-        <div>
-          <div>
-            <button>{this.state.grid[0][0]}</button>
-            <button>{this.state.grid[0][1]}</button>
-            <button>{this.state.grid[0][2]}</button>
-            <button>{this.state.grid[0][3]}</button>
-            <button>{this.state.grid[0][4]}</button>
-          </div>
-          <div>
-            <button>{this.state.grid[1][0]}</button>
-            <button>{this.state.grid[1][1]}</button>
-            <button>{this.state.grid[1][2]}</button>
-            <button>{this.state.grid[1][3]}</button>
-            <button>{this.state.grid[1][4]}</button>
-          </div>
-          <div>
-            <button>{this.state.grid[2][0]}</button>
-            <button>{this.state.grid[2][1]}</button>
-            <button>{this.state.grid[2][2]}</button>
-            <button>{this.state.grid[2][3]}</button>
-            <button>{this.state.grid[2][4]}</button>
-          </div>
-          <div>
-            <button>{this.state.grid[3][0]}</button>
-            <button>{this.state.grid[3][1]}</button>
-            <button>{this.state.grid[3][2]}</button>
-            <button>{this.state.grid[3][3]}</button>
-            <button>{this.state.grid[3][4]}</button>
-          </div>
-          <div>
-            <button>{this.state.grid[4][0]}</button>
-            <button>{this.state.grid[4][1]}</button>
-            <button>{this.state.grid[4][2]}</button>
-            <button>{this.state.grid[4][3]}</button>
-            <button>{this.state.grid[4][4]}</button>
-          </div>
-          <div></div>
-        </div>
-      </div>
-    );
-  }
-
   render() {
-    if (this.state.load_challenge) {
+    if (this.state.play_boggle) {
       if (this.state.show_grid) {
-        return (
-          <div>
-            <div>{this.PrintGrid()}</div>
-            <BoggleGame sent_list={this.state.all_valid_words} />
-          </div>
-        );
+        if (this.state.grid.length > 0) {
+          if (!this.state.load_boggle) {
+            return (
+              <div>
+                <div>{this.SetValidWords()}</div>
+              </div>
+            );
+          } else {
+            return (
+              <div>
+                <BoggleGame
+                  sent_list={this.state.all_valid_words}
+                  sent_grid={this.state.grid}
+                />
+              </div>
+            );
+          }
+        } else {
+          return <div></div>;
+        }
       } else {
         return (
           <div>
             <div>
               <h1> Challenge 1</h1>
               <p> High Score: {this.state.high_score_1}</p>
-              {this.state.high_score}
             </div>
-            <button onClick={e => this.handleChange(1, e)}>
-              Load Challenge
+            <button onClick={e => this.handleChange(0, e)}>
+              Play Challenge 1
             </button>
             <div>
               <h1> Challenge 2</h1>
               <p> High Score {this.state.high_score_2}</p>
             </div>
-            <button onClick={e => this.handleChange(2, e)}>
-              Load Challenge
-            </button>{" "}
+            <button onClick={e => this.handleChange(1, e)}>
+              Play Challenge 2
+            </button>
             <div>
               <h1> Challenge 3</h1>
               <p> High Score {this.state.high_score_3}</p>
             </div>
-            <button onClick={e => this.handleChange(3, e)}>
-              Load Challenge
-            </button>{" "}
+            <button onClick={e => this.handleChange(2, e)}>
+              Play Challenge 2
+            </button>
           </div>
         );
       }
     } else {
-      var maka = this.GetHighScore(this.SetHighScore);
-      console.log(maka);
+      this.GetHighScore(this.SetHighScore);
+      console.log(this.GetHighScore(this.SetHighScore));
       return (
         <div>
-          <button onClick={this.handleSubmit}>Load Challenge</button>
+          <button onClick={this.handleSubmit}>Play Boggle </button>
         </div>
       );
     }
@@ -200,6 +162,7 @@ class BoggleGame extends Component {
       valid_words: [],
       score: 0,
       all_valid_words: this.props.sent_list,
+      grid: this.props.sent_grid,
       game_state: true
     };
     this.handleChange = this.handleChange.bind(this);
@@ -218,66 +181,94 @@ class BoggleGame extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
+    var word = this.state.input_word.toUpperCase();
 
-    if (this.state.valid_words.includes(this.state.input_word)) {
+    if (this.state.valid_words.includes(word)) {
       alert("The word has already been found.");
-    } else if (
-      //remove the word from this.state.valid_words
-      this.state.all_valid_words.includes(this.state.input_word.toUpperCase())
-    ) {
+    } else if (this.state.all_valid_words.includes(word)) {
+      // add 1 to score and push word to this.state.valid_words
       var new_valid_words = this.state.valid_words;
-      new_valid_words.push(this.state.input_word);
+      new_valid_words.push(word);
       this.setState({ valid_words: new_valid_words });
-      var new_all_valid_words = this.state.all_valid_words;
-      for (var i = 0; i < new_all_valid_words.length; i++) {
-        if (new_all_valid_words[i] === this.state.input_word.toUpperCase()) {
-          new_all_valid_words.splice(i, 1);
-        }
-      }
-      this.setState({ all_valid_words: new_all_valid_words });
-      var new_score = this.state.score;
-      new_score++;
-      this.setState({ score: new_score });
+      this.setState({ score: this.state.score + 1 });
     } else {
       alert("The word you have entered is invalid.");
     }
+  }
+
+  PrintGrid() {
+    return (
+      <div>
+        <div>
+          <button>{this.state.grid[0][0]}</button>
+          <button>{this.state.grid[0][1]}</button>
+          <button>{this.state.grid[0][2]}</button>
+          <button>{this.state.grid[0][3]}</button>
+          <button>{this.state.grid[0][4]}</button>
+        </div>
+        <div>
+          <button>{this.state.grid[1][0]}</button>
+          <button>{this.state.grid[1][1]}</button>
+          <button>{this.state.grid[1][2]}</button>
+          <button>{this.state.grid[1][3]}</button>
+          <button>{this.state.grid[1][4]}</button>
+        </div>
+        <div>
+          <button>{this.state.grid[2][0]}</button>
+          <button>{this.state.grid[2][1]}</button>
+          <button>{this.state.grid[2][2]}</button>
+          <button>{this.state.grid[2][3]}</button>
+          <button>{this.state.grid[2][4]}</button>
+        </div>
+        <div>
+          <button>{this.state.grid[3][0]}</button>
+          <button>{this.state.grid[3][1]}</button>
+          <button>{this.state.grid[3][2]}</button>
+          <button>{this.state.grid[3][3]}</button>
+          <button>{this.state.grid[3][4]}</button>
+        </div>
+        <div>
+          <button>{this.state.grid[4][0]}</button>
+          <button>{this.state.grid[4][1]}</button>
+          <button>{this.state.grid[4][2]}</button>
+          <button>{this.state.grid[4][3]}</button>
+          <button>{this.state.grid[4][4]}</button>
+        </div>
+      </div>
+    );
   }
 
   render() {
     if (this.state.game_state) {
       return (
         <div>
+          <div>{this.PrintGrid()}</div>
           <div>
-            <div>
-              <form onSubmit={this.handleSubmit}>
-                <label>
-                  Enter a word:
-                  <input
-                    type="text"
-                    value={this.state.input_word}
-                    onChange={this.handleChange}
-                  />
-                </label>
+            <h1></h1>
+            <form onSubmit={this.handleSubmit}>
+              <label>
+                Enter a word:
                 <input
-                  className="btn btn-primary"
-                  type="submit"
-                  value="Submit"
+                  type="text"
+                  value={this.state.input_word}
+                  onChange={this.handleChange}
                 />
-              </form>
-            </div>
-            <div>
-              <button onClick={this.handleStop}>Stop</button>
-            </div>
+              </label>
+              <input className="btn btn-primary" type="submit" value="Submit" />
+            </form>
           </div>
-          <p> Score: </p>
-          <div>{this.state.score}</div>
+          <h1></h1>
+          <div>
+            <button onClick={this.handleStop}>End Challenge</button>
+          </div>
+          <p> Score: {this.state.score}</p>
         </div>
       );
     } else {
       return (
         <div>
-          <p> Score: </p>
-          <div>{this.state.score}</div>
+          <div>{this.PrintGrid()}</div>
+          <p> You have scored {this.state.score} points</p>
         </div>
       );
     }
