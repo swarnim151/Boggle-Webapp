@@ -98,7 +98,7 @@ function boggle(grid, dictionary) {
     }
   }
 
-  console.log(first_letter_map, "maka");
+  // console.log(first_letter_map, "maka");
   var a = 0;
 
   while (a < dictionary.length) {
@@ -109,17 +109,17 @@ function boggle(grid, dictionary) {
     var skip_by = 10;
 
     if (!first_letter_map.has(word[0])) {
-      console.log(a, "no first letter", dictionary[a].toUpperCase());
+      //  console.log(a, "no first letter", dictionary[a].toUpperCase());
       while (skip_by >= 1) {
         if (
           a + skip_by < dictionary.length &&
           word[0] === dictionary[a + skip_by][0].toUpperCase()
         ) {
-          console.log(a, "adding skip_by", dictionary[a].toUpperCase());
-          console.log();
+          // console.log(a, "adding skip_by", dictionary[a].toUpperCase());
+          //console.log();
           a = a + skip_by;
         } else {
-          console.log(a, "reducing skip_by", dictionary[a].toUpperCase());
+          //  console.log(a, "reducing skip_by", dictionary[a].toUpperCase());
           skip_by = skip_by / 10;
         }
       }
@@ -130,15 +130,15 @@ function boggle(grid, dictionary) {
 
       if (!grid_contains_all_unique_letters(word, first_letter_map)) {
         a++;
-        console.log("not in map", word);
+        //console.log("not in map", word);
 
         continue;
       }
 
-      console.log(word);
+      // console.log(word);
 
       start_position = first_letter_map.get(word[0]);
-      console.log(a, "word", word);
+      // console.log(a, "word", word);
 
       for (var j = 0; j < start_position.length; j++) {
         if (answer.includes(word)) {

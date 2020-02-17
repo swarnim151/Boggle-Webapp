@@ -21,20 +21,28 @@ import Boggle from "./boggle.js";
 function App() {
   const [user, setUser] = useState(null);
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <LoginButton setUser={user => setUser(user)} />
-        {user != null && (
-          <p>
-            Welcome, {user.displayName} ({user.email})
-          </p>
-        )}
-        <h1> Boggle </h1>
-        <Boggle></Boggle>
-      </header>
-    </div>
-  );
+  if (user == null) {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <h1> Boggle </h1>
+
+          <LoginButton setUser={user => setUser(user)} />
+        </header>
+      </div>
+    );
+  } else {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <h1> Playing Boggle as :{user.displayName}</h1>
+          <div>
+            <Boggle></Boggle>
+          </div>
+        </header>
+      </div>
+    );
+  }
 }
 
 export default App;
